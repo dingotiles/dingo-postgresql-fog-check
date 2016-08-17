@@ -40,6 +40,23 @@ def check_bucket_exists_in_region(bucket_name, region, fog_credentials)
   exit 1
 end
 
+def extract_region_from_endpoint(endpoint)
+  return "us-east-1" if endpoint == "s3.amazonaws.com"
+  return "cn-north-1" if endpoint == "s3.cn-north-1.amazonaws.com.cn"
+  if endpoint =~ /s3-(.*).amazonaws.com/
+    return $1
+  end
+  $stderr.puts "Endpoint '#{endpoint}' does not pattern match to s3-<region>.amazonaws.com"
+  exit 1
+end
+
+def check_region_matches_endpoint(region, endpoint)
+  endpoint_region = extract_region_from_endpoint(endpoint)
+  if endpoint_region != region
+    $stderr.puts "Region '#{region}' does not match endpoint '#{endpoint}'"
+    exit 1
+  end
+end
 
 ARGV.each do |fog_file|
   fog_config = YAML.load_file(fog_file)
@@ -65,6 +82,17 @@ ARGV.each do |fog_file|
 
   bucket_name = fog_credentials.delete(:bucket_name)
   region = fog_credentials[:region]
+  endpoint = fog_credentials.delete(:endpoint)
+  if region.nil?
+    if endpoint.nil?
+      $stderr.puts "ERROR: require default.region or default.endpoint"
+      exit 1
+    end
+    region = extract_region_from_endpoint(endpoint)
+    fog_credentials[:region] = region
+  elsif !endpoint.nil?
+    check_region_matches_endpoint(region, endpoint)
+  end
   check_bucket_exists_in_region(bucket_name, region, fog_credentials)
 
   # Final clarification that original credentials are good
