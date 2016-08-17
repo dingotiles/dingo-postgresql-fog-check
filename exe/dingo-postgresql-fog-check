@@ -8,24 +8,57 @@ if ARGV.size == 0
   exit 1
 end
 
+def display_sanitized_credentials(fog_credentials)
+  creds = fog_credentials.clone
+  creds.keys.each do |key|
+    if key =~ /(password|secret)/
+      creds[key] = "REDACTED"
+    end
+  end
+  p creds
+end
+
+def display_available_buckets(fog_credentials)
+  creds = fog_credentials.clone
+  $stderr.puts "Available buckets:"
+  creds.delete(:endpoint)
+  creds.delete(:region)
+  storage = Fog::Storage.new(creds)
+  storage.directories.each do |dir|
+    $stderr.puts "* #{dir.key} in #{dir.location}"
+  end
+  exit 1
+end
+
+
 ARGV.each do |fog_file|
   fog_config = YAML.load_file(fog_file)
-  fog_credentials = fog_config['default']
+  fog_credentials = fog_config['default'] || fog_config[:default]
+  fog_credentials = fog_credentials.inject({}) { |memo, (k, v)| memo[k.to_sym] = v; memo  }
   if fog_credentials.nil?
     $stderr.puts "File #{fog_file} does not have a :default key"
     exit 1
   end
 
-  provider = fog_credentials.delete('provider')
+  provider = fog_credentials[:provider]
   if provider.nil?
-    $stderr.puts "default.provider missing; defaulting to 's3'"
-    provider = "s3"
+    $stderr.puts "default.provider missing; defaulting to 'AWS'"
+    fog_credentials[:provider] = provider = "AWS"
   end
 
-  if provider != "s3"
-    $stderr.puts "Dingo PostgreSQL does not yet support any Object Store other than Amazon S3. Please contact https://slack.dingotiles.com to discuss your requirements."
+  if provider != "AWS"
+    $stderr.puts "Dingo PostgreSQL does not yet support any Object Store other than Amazon S3 ('AWS'). Please contact https://slack.dingotiles.com to discuss your requirements."
     exit 1
   end
 
-  p fog_credentials
+  display_sanitized_credentials fog_credentials
+
+  bucket_name = fog_credentials.delete(:bucket_name)
+  if bucket_name.nil?
+    $stderr.puts "default.bucket_name missing"
+    display_available_buckets(fog_credentials)
+  end
+
+  storage = Fog::Storage.new(fog_credentials)
+  p storage.directories.get(bucket_name)
 end
