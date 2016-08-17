@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+require "yaml"
+require "fog"
+
+if ARGV.size == 0
+  $stderr.puts "USAGE: dingo-postgresql-fog-check [path/to/fog.yml]"
+  exit 1
+end
+
+ARGV.each do |fog_file|
+  fog_config = YAML.load_file(fog_file)
+  fog_credentials = fog_config['default']
+  if fog_credentials.nil?
+    $stderr.puts "File #{fog_file} does not have a :default key"
+    exit 1
+  end
+
+  provider = fog_credentials.delete('provider')
+  if provider.nil?
+    $stderr.puts "default.provider missing; defaulting to 's3'"
+    provider = "s3"
+  end
+
+  if provider != "s3"
+    $stderr.puts "Dingo PostgreSQL does not yet support any Object Store other than Amazon S3. Please contact https://slack.dingotiles.com to discuss your requirements."
+    exit 1
+  end
+
+  p fog_credentials
+end
