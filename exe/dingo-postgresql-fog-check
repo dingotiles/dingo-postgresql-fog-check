@@ -18,13 +18,23 @@ def display_sanitized_credentials(fog_credentials)
   p creds
 end
 
-def display_available_buckets(fog_credentials)
+def check_bucket_exists_in_region(bucket_name, region, fog_credentials)
   creds = fog_credentials.clone
-  $stderr.puts "Available buckets:"
+  creds.delete(:bucket_name)
   creds.delete(:endpoint)
   creds.delete(:region)
   storage = Fog::Storage.new(creds)
+  available_directories = []
   storage.directories.each do |dir|
+    if dir.key == bucket_name && dir.location == region
+      puts "Bucket '#{bucket_name}' found in region '#{region}'"
+      return
+    end
+    available_directories << dir
+  end
+  $stderr.puts "ERROR: Bucket '#{bucket_name}' not found in region '#{region}'"
+  $stderr.puts "Available buckets:"
+  available_directories.each do |dir|
     $stderr.puts "* #{dir.key} in #{dir.location}"
   end
   exit 1
@@ -54,11 +64,10 @@ ARGV.each do |fog_file|
   display_sanitized_credentials fog_credentials
 
   bucket_name = fog_credentials.delete(:bucket_name)
-  if bucket_name.nil?
-    $stderr.puts "default.bucket_name missing"
-    display_available_buckets(fog_credentials)
-  end
+  region = fog_credentials[:region]
+  check_bucket_exists_in_region(bucket_name, region, fog_credentials)
 
+  # Final clarification that original credentials are good
   storage = Fog::Storage.new(fog_credentials)
   p storage.directories.get(bucket_name)
 end
