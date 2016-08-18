@@ -26,3 +26,9 @@ Then merge it with the fixture files:
 ```
 
 The `tmp` directory will be filled with sample files. Those ending with `-good.yml` should complete successfully. All other should error.
+
+Then run each one:
+
+```
+bundle exec exe/dingo-postgresql-fog-check tmp/fog-region-good.yml
+```
