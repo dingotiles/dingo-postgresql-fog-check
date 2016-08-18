@@ -1,41 +1,28 @@
-# Dingo::Postgresql::Fog::Check
+# fog credentials checker
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/dingo/postgresql/fog/check`. To experiment with that code, run `bin/console` for an interactive prompt.
+This project includes an executable `dingo-postgresql-fog-check` that checks one or more [fog](https://fog.io) configuration files for valid access to an object storage bucket.
 
-TODO: Delete this and the text above, and describe your gem
+Currently it supports testing Amazon S3 storage credentials (the object storage supported by Dingo PostgreSQL).
 
-## Installation
+## Simple testing
 
-Add this line to your application's Gemfile:
+Ok, so this draft of the tool was written quickly and manually tested against some sample input files.
 
-```ruby
-gem 'dingo-postgresql-fog-check'
+You can recreate sample input files with your own credentials and your own Amazon S3 account.
+
+Create `tmp/creds.yml`:
+
+```yaml
+default:
+  aws_access_key_id: XXX
+  aws_secret_access_key: YYY
+  bucket_name: bucket-in-eu-central-1
 ```
 
-And then execute:
+Then merge it with the fixture files:
 
-    $ bundle
+```
+./fixtures/make_fog_files.sh tmp/creds.yml
+```
 
-Or install it yourself as:
-
-    $ gem install dingo-postgresql-fog-check
-
-## Usage
-
-TODO: Write usage instructions here
-
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/dingo-postgresql-fog-check. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
-
-
-## License
-
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
+The `tmp` directory will be filled with sample files. Those ending with `-good.yml` should complete successfully. All other should error.

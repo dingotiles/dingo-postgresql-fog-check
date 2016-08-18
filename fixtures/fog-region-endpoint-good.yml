@@ -1,0 +1,7 @@
+default:
+  provider: AWS
+  aws_access_key_id: (( param "Please provide default.aws_access_key_id" ))
+  aws_secret_access_key: (( param "Please provide default.aws_secret_access_key" ))
+  bucket_name: (( param "Please provide default.bucket_name" ))
+  region: eu-central-1
+  endpoint: s3-eu-central-1.amazonaws.com
