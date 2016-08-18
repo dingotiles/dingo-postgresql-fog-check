@@ -30,5 +30,5 @@ The `tmp` directory will be filled with sample files. Those ending with `-good.y
 Then run each one:
 
 ```
-bundle exec exe/dingo-postgresql-fog-check tmp/fog-region-good.yml
+bundle exec bin/dingo-postgresql-fog-check tmp/fog-region-good.yml
 ```
