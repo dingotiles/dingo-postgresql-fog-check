@@ -59,7 +59,10 @@ def check_region_matches_endpoint(region, endpoint)
 end
 
 ARGV.each do |fog_file|
-  fog_config = YAML.load_file(fog_file)
+  unless fog_config = YAML.load_file(fog_file)
+    $stderr.puts "File #{fog_file} could not be found or YAML parsed"
+    exit 1
+  end
   fog_credentials = fog_config['default'] || fog_config[:default]
   fog_credentials = fog_credentials.inject({}) { |memo, (k, v)| memo[k.to_sym] = v; memo  }
   if fog_credentials.nil?
