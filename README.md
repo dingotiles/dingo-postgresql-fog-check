@@ -16,7 +16,7 @@ Create `tmp/creds.yml`:
 default:
   aws_access_key_id: XXX
   aws_secret_access_key: YYY
-  bucket_name: bucket-in-eu-central-1
+  bucket_name: bucket-in-us-east-1
 ```
 
 Then merge it with the fixture files:

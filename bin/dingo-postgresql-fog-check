@@ -22,22 +22,17 @@ def check_bucket_exists_in_region(bucket_name, region, fog_credentials)
   creds = fog_credentials.clone
   creds.delete(:bucket_name)
   creds.delete(:endpoint)
-  creds.delete(:region)
+  region = creds[:region] || "us-east-1"
   storage = Fog::Storage.new(creds)
-  available_directories = []
-  storage.directories.each do |dir|
-    if dir.key == bucket_name && dir.location == region
-      puts "Bucket '#{bucket_name}' found in region '#{region}'"
-      return
-    end
-    available_directories << dir
+  begin
+    bucket = storage.directories.get(bucket_name)
+  rescue Excon::Error::Socket => e
+    $stderr.puts "ERROR: Unknown region '#{region}'"
+    exit 1
+  rescue ArgumentError => e
+    $stderr.puts e
+    exit 1
   end
-  $stderr.puts "ERROR: Bucket '#{bucket_name}' not found in region '#{region}'"
-  $stderr.puts "Available buckets:"
-  available_directories.each do |dir|
-    $stderr.puts "* #{dir.key} in #{dir.location}"
-  end
-  exit 1
 end
 
 def extract_region_from_endpoint(endpoint)
