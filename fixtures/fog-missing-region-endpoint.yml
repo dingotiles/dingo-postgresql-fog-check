@@ -1,5 +1,5 @@
 default:
   provider: AWS
-  aws_access_key_id: (( grab "meta.aws_access_key_id" ))
-  aws_secret_access_key: (( grab "meta.aws_secret_access_key" ))
-  bucket_name: (( grab "meta.bucket_name" ))
+  aws_access_key_id: (( grab meta.aws_access_key_id ))
+  aws_secret_access_key: (( grab meta.aws_secret_access_key ))
+  bucket_name: (( grab meta.bucket_name ))
