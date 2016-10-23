@@ -95,5 +95,11 @@ ARGV.each do |fog_file|
 
   # Final clarification that original credentials are good
   storage = Fog::Storage.new(fog_credentials)
-  p storage.directories.get(bucket_name)
+  bucket = storage.directories.get(bucket_name)
+  if bucket
+    p bucket
+  else
+    $stderr.puts "ERROR: bucket '#{bucket_name}' not found"
+    exit 1
+  end
 end

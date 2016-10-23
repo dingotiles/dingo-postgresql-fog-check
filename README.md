@@ -32,3 +32,16 @@ Then run each one:
 ```
 bundle exec bin/dingo-postgresql-fog-check tmp/fog-region-good.yml
 ```
+
+To run an example that should fail:
+
+```
+bundle exec bin/dingo-postgresql-fog-check tmp/fog-bucket-unknown.yml
+```
+
+The output might look like:
+
+```
+{:aws_access_key_id=>"XXX", :aws_secret_access_key=>"REDACTED", :bucket_name=>"see-no-evil-hear-no-evil", :provider=>"AWS", :region=>"us-east-1"}
+ERROR: bucket 'see-no-evil-hear-no-evil' not found
+```
