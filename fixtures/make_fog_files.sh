@@ -30,4 +30,5 @@ mkdir -p tmp
 for fixture in $fixtures; do
   echo $fixture
   spruce merge fixtures/$fixture $creds > tmp/${fixture}
+  # spruce merge --prune meta fixtures/$fixture $creds > tmp/${fixture}
 done
